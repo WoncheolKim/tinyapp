@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/WoncheolKim/tinyapp/issues"
   },
-  "homepage": "https://github.com/WoncheolKim/tinyapp#readme"
+  "homepage": "https://github.com/WoncheolKim/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.18.1"
+  }
 }
