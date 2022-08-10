@@ -1,3 +1,4 @@
+const { response } = require("express");
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
@@ -30,14 +31,18 @@ app.get("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
-
-app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+//redirect url details and save
+app.get('/urls/:id', (req, res) => {
+  const templateVar = { id: req.params.id, longURL: urlDatabase[req.params.id]};
+  res.render('urls_show', templateVar);
 });
-
-app.get("/urls/:id", (req, res) => {
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id]};
-  res.render("urls_show", templateVars);
+//save and go to website
+app.get('/u/:id', (req, res) => {
+  const templateVar = { id: req.params.id, longURL: urlDatabase[req.params.id]};
+  if (urlDatabase[templateVar.id]) {
+    res.redirect(templateVar.longURL);
+  }
+  res.redirect('/418');
 });
 
 app.listen(PORT, () => {
@@ -46,7 +51,9 @@ app.listen(PORT, () => {
 
 app.post("/urls", (req, res) => {
   console.log(req.body); // Log the POST request body to the console
-  res.send("Ok"); // Respond with 'Ok' (we will replace this)
+  const id = generateRandomString();
+  urlDatabase [id] = req.body.longURL
+  res.redirect(`/u/${id}`)
 });
 
 function generateRandomString() {
