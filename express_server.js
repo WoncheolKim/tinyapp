@@ -25,6 +25,7 @@ app.get("/urls.json", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
+  console.log(templateVars)
   res.render("urls_index", templateVars);
 });
 
@@ -54,6 +55,17 @@ app.post("/urls", (req, res) => {
   const id = generateRandomString();
   urlDatabase [id] = req.body.longURL
   res.redirect(`/u/${id}`)
+});
+
+app.post("/urls/:id", (req, res) => {
+  const { id } = req.params
+  const { longURL } = req.body
+  urlDatabase[id] = longURL
+  res.redirect("/urls");
+  // console.log(req.body); // Log the POST request body to the console
+  // const id = generateRandomString();
+  // urlDatabase [id] = req.body.longURL
+  // res.redirect(`/u/${id}`)
 });
 
 function generateRandomString() {
