@@ -1,0 +1,22 @@
+<html>
+  <head>
+    <title>Profile Page</title>
+    <link rel="stylesheet" href="/app.css"/>
+  </head>
+  <body>
+    <h1>Secret Stuff</h1>
+    
+    <table>
+      <tr><td>User</td></tr>:&nbsp;<%= user %><td></td>
+      <tr><td>password</td></tr>:&nbsp;<%= password %><td></td>
+    </table>
+
+    <form action="/profile" method="POST">
+    
+      <label for="newpassword">New Password</label>
+      <input type="text" name="newpassword" value="<%= password %></input>
+    
+      <button>Change Password</button>
+    </form>
+</body>
+</html>
