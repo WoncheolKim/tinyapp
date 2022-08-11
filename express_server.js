@@ -1,12 +1,21 @@
+// express node app
 const express = require("express");
-const app = express();
-const PORT = 8080; // default port 8080
+// const morgan = require('morgan'); (11th class)
+
+// const cookieParser = require('cookie-parser');
 const cookieParser = require("cookie-parser");
+
+// const bcrype = require('bcrypt'); (11th class)
+
+const PORT = 8080; // default port 8080
+const app = express();
+app.set("view engine", "ejs")
+
 
 // Middleware
 
+// app.use(morgan('dev')); (11th class)
 app.use(cookieParser());
-app.set("view engine", "ejs")
 app.use(express.urlencoded({ extended: true }));
 
 
@@ -28,6 +37,7 @@ const urlDatabase = {
 
 app.get("/", (req, res) => {
   res.send("Hello! This is James!!");
+  res.render("urls");
 });
 
 app.get("/urls.json", (req, res) => {
@@ -76,14 +86,23 @@ app.post("/urls", (req, res) => {
   res.redirect(`/u/${id}`)
 });
 
-app.post("/urls/:id/delete", (req, res) => {
-  delete urlDatabase[req.params.id];
-  res.redirect(`/urls`);
-});
 
 app.post("/urls/:id/update", (req, res) => {
   urlDatabase[req.params.id] = req.body.longURL;
   res.redirect("/urls");
+});
+
+
+// login Route
+app.get("/login", (req, res) => {
+  if (users[req.cookies.user_id]) {
+    res.redirect("/urls");
+    return;
+  }
+  const templateVars = {
+    user: users[req.cookies.user_id]
+  };
+  res.render("login", templateVars);
 });
 
 // login
@@ -93,10 +112,25 @@ app.post("/login", (req, res) => {
   res.redirect("/urls");
 });
 
-// Login Routes
-app.get("/login", (req, res) => {
-  res.redirect("/login");
+
+
+/* login (11th class) 
+app.get('/login', (req, res) => {
+  res.render('login');
 });
+
+app.post('/login', (req, res) => {
+  console.log('req.body', req.body);
+  // // bcrypt.compare(req.body.password, users[req.body.username].password)
+  .then((result) => {
+    console.log('do the passwords match?', result);
+    if (result) {
+      req.session.username = users[req.body.username]
+    }
+  })
+});
+*/
+
 
 // logout
 app.post("/logout", (req, res) => {
@@ -111,6 +145,16 @@ app.get("/logout", (req, res) => {
   res.redirect("/");
 });
 
+// // // logout Nally (11th class)
+// app.get('/logout', (req, res) => {
+//   // clear the cookie
+//   // res.clearCookie('')
+//   // delete the session variable
+//   delete req.session.username;
+//   res.redirect('home');
+// });
+
+
 
 app.post("/urls/:id", (req, res) => {
   const { id } = req.params
@@ -122,6 +166,7 @@ app.post("/urls/:id", (req, res) => {
   // urlDatabase [id] = req.body.longURL
   // res.redirect(`/u/${id}`)
 });
+
 
 // User_id Data
 const users = {
@@ -137,25 +182,35 @@ const users = {
   },
 };
 
+
+
 // Registeration 
 app.get("/register", (req, res) => {
-  const templateVars = {};
+  const templateVars = { user: users[req.cookies.user_id] };
   res.render("registration", templateVars);
 });
+
+function getUserByEmail(email) {
+  for (let userId in users) {
+    if (email === users[userId].email) {
+      return users[userId];
+    }
+  }
+  return null;
+}
 
 // registreration 
 app.post("/register", (req, res) => {
   const id = generateRandomString();
   const email = req.body.email;
   const password = req.body.password;
-  const getUserByEmail = () => {
-    if(email === '' || password === '') {
-      return res.send("error 400");
-    }
-    if(emailExist) {
-      return res.send("error 400");
-    }
+  if(email === '' || password === '') {
+    return res.send("error 400");
   }
+  if(getUserByEmail(email)) {
+    return res.send("error 400");
+  }
+  
   users[id] = {
     id,
     email,
@@ -165,14 +220,11 @@ app.post("/register", (req, res) => {
   console.log(res.cookie['user_id']);
   res.redirect("/urls");
 
-  
-  // const templateVars = { username: req.cookies["username"] }
-  // res.render("register", templateVars);
 }); 
 
 
 
-// Profile Page
+// Profile Page (11th class)
 // app.get('/profile',(req,res) => {
 
 //   if(user_id[req.cookies.user]) { // if the user is authenticated
@@ -191,6 +243,32 @@ app.post("/register", (req, res) => {
 //   res.redirect('/');
 // });
 
+
+/* profie Nally (11th class)
+// app.get('profile', (req, res) => {
+//   if(req.session.username) {
+//     res.render('profile', {username: req.session.username});
+//   } else {
+//     res.redirect('/login');
+//   }
+// });
+*/
+
+//
+// Delete
+//
+
+// (11th Class)
+app.get('/urls/delete/:id', (req,res) => {
+  console.log('delete route key:', req.params.id);
+  delete objectives[req.params.id];
+  res.redirect('/urls');
+});
+
+// app.post("/urls/:id/delete", (req, res) => {
+//   delete urlDatabase[req.params.id];
+//   res.redirect(`/urls`);
+// });
 
 
 app.listen(PORT, () => {

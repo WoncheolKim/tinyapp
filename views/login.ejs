@@ -14,27 +14,30 @@
       integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
       crossorigin="anonymous"
     />
-
-    <title>TinyApp - New URL</title>
+    <title>TinyApp - Login</title>
   </head>
-
   <body>
     <%- include('partials/_header') %>
-
     <main style="margin: 1em;">
-      <h3>Create TinyURL</h3>
-      <form class="form-inline" action="/urls" method="POST">
-        <div class="form-group mb-2">
-          <label for="longURL">Enter a URL:</label>
-          <input
-            class="form-control"
-            type="text"
-            name="longURL"
-            placeholder="http://"
-            style="width: 300px; margin: 1em"
-          />
-          <button type="submit" class="btn btn-primary">Submit</button>
-        </div>
+      <h3>Login</h3>
+      <form action="/login" method="POST">
+        <label for="email">Your Email:</label>
+        <input
+          class="form-control"
+          type="email"
+          name="email"
+          placeholder="Enter email"
+          style="width: 250px; margin-bottom: 10px;"
+        />
+        <label for="password">Your Password:</label>
+        <input
+          class="form-control"
+          type="password"
+          name="password"
+          placeholder="Enter Password"
+          style="width: 250px; margin-bottom: 10px;"
+        />
+        <button type="submit" class="btn btn-primary">Login</button>
       </form>
     </main>
     <!-- Bootstrap JS -->

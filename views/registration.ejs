@@ -14,15 +14,14 @@
       integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
       crossorigin="anonymous"
     />
-
-    <title>New URL - TinyApp Example</title>
+    <title>TinyApp Register</title>
   </head>
-
   <body>
+    <%- include('partials/_header') %>
     <main style="margin: 1em;">
-      <h3>Create an Account</h3>
+      <h3>Create New Account</h3><br>
       <form action="/register" method="POST">
-          <label for="email">Your email:</label>
+          <label for="email">Create email:</label>
           <input
             class="form-control"
             type="email"
@@ -30,12 +29,12 @@
             placeholder="example@example.com"
             style="width: 250px; margin-bottom: 10px;"
           />
-          <label for="password">Your password:</label>
+          <label for="password">Create password:</label>
           <input
           class="form-control"
           type="password"
           name="password"
-          placeholder="your password"
+          placeholder="New Password"
           style="width: 250px; margin-bottom: 10px;"
           />
           <button type="submit" class="btn btn-dark">Register</button>
