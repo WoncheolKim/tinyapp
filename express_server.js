@@ -50,8 +50,14 @@ const users = {
 };
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "aJ48lW",
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW",
+  },
 };
 
 app.get("/", (req, res) => {
@@ -72,7 +78,7 @@ app.get("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
   const user = users[req.cookies.user_id];
   if (!user) {
-    return res.redirect("/urls");
+    return res.redirect("/login");
   }
   const templateVars = {
     user
@@ -87,7 +93,7 @@ app.get("/urls/:id", (req, res) => {
   const templateVars = {
     user,
     id: req.params.id,
-    longURL: urlDatabase[req.params.id],
+    longURL: urlDatabase[req.params.id].longURL,
     urls: urlDatabase,
   };
   res.render("urls_show", templateVars);
@@ -95,11 +101,11 @@ app.get("/urls/:id", (req, res) => {
 
 //save and go to website
 app.get('/u/:id', (req, res) => {
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id]};
+  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id].longURL};
   if (urlDatabase[templateVars.id]) {
     return res.redirect(templateVars.longURL);
   }
-  res.status(404).send("Invalid URL");
+  res.send("Invalid URL");
 });
 
 app.post("/urls", (req, res) => {
@@ -108,13 +114,12 @@ app.post("/urls", (req, res) => {
     return res.send("Please register first");
   }
   const id = generateRandomString();
-  urlDatabase [id] = req.body.longURL
+  urlDatabase[id] = { longURL : req.body.longURL }
   res.redirect(`/u/${id}`);
 });
 
-
 app.post("/urls/:id/update", (req, res) => {
-  urlDatabase[req.params.id] = req.body.longURL;
+  urlDatabase[req.params.id].longURL = req.body.longURL;
   res.redirect("/urls");
 });
 
@@ -197,7 +202,7 @@ app.get("/logout", (req, res) => {
 app.post("/urls/:id", (req, res) => {
   const { id } = req.params
   const { longURL } = req.body
-  urlDatabase[id] = longURL
+  urlDatabase[id].longURL = longURL
   res.redirect("/urls");
   // console.log(req.body); // Log the POST request body to the console
   // const id = generateRandomString();
