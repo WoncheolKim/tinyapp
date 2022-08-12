@@ -30,6 +30,20 @@ function generateRandomString() {
   return result;
   }
 
+  // User_id Data
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk",
+  },
+};
+
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -107,11 +121,23 @@ app.get("/login", (req, res) => {
 
 // login
 app.post("/login", (req, res) => {
-  const user_id = req.body.user_id;
-  res.cookie("user_id", user_id);
-  res.redirect("/urls");
-});
-
+  const { email, password } = req.body;
+    console.log(users);
+    for (let userId in users) {
+      console.log("loginkey", userId);
+      let user = users[userId];
+      console.log("useruser", user);
+      if (email === user.email && password === user.password) {
+        res.cookie("user_id", user.id);
+        return res.redirect("/urls");
+      }
+      if (email === user.email && password !== user.password) {
+        return res.status(403).send("Enter correct password");
+      }
+    }
+    return res.status(403).send("E-mail cannot be found");
+    
+ });
 
 
 /* login (11th class) 
@@ -142,7 +168,7 @@ app.post("/logout", (req, res) => {
 // Logout Route 
 app.get("/logout", (req, res) => {
   res.clearCookie("user_id");
-  res.redirect("/");
+  res.redirect("/login");
 });
 
 // // // logout Nally (11th class)
@@ -168,19 +194,7 @@ app.post("/urls/:id", (req, res) => {
 });
 
 
-// User_id Data
-const users = {
-  userRandomID: {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur",
-  },
-  user2RandomID: {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk",
-  },
-};
+
 
 
 
@@ -205,10 +219,10 @@ app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   if(email === '' || password === '') {
-    return res.send("error 400");
+    return res.status(400).send("Put your email and password");
   }
   if(getUserByEmail(email)) {
-    return res.send("error 400");
+    return res.status(400).send("Your email exist");
   }
   
   users[id] = {
