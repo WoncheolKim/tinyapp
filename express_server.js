@@ -71,11 +71,15 @@ app.get("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   const user = users[req.cookies.user_id];
+  if (!user) {
+    return res.redirect("/urls");
+  }
   const templateVars = {
     user
   };
   res.render("urls_new", templateVars);
 });
+
 
 //redirect url details and save
 app.get("/urls/:id", (req, res) => {
@@ -91,18 +95,21 @@ app.get("/urls/:id", (req, res) => {
 
 //save and go to website
 app.get('/u/:id', (req, res) => {
-  const templateVar = { id: req.params.id, longURL: urlDatabase[req.params.id]};
-  if (urlDatabase[templateVar.id]) {
-    res.redirect(templateVar.longURL);
+  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id]};
+  if (urlDatabase[templateVars.id]) {
+    return res.redirect(templateVars.longURL);
   }
-  res.redirect('/418');
+  res.status(404).send("Invalid URL");
 });
 
 app.post("/urls", (req, res) => {
   console.log(req.body); // Log the POST request body to the console
+  if (!users[req.cookies.user_id]) {
+    return res.send("Please register first");
+  }
   const id = generateRandomString();
   urlDatabase [id] = req.body.longURL
-  res.redirect(`/u/${id}`)
+  res.redirect(`/u/${id}`);
 });
 
 
