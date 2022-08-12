@@ -1,15 +1,10 @@
-// express node app
 const express = require("express");
-// const morgan = require('morgan'); (11th class)
-
+const bcrypt = require("bcryptjs");
 const cookieParser = require("cookie-parser");
 
-// const bcrype = require('bcrypt'); (11th class)
-
-const PORT = 8080; // default port 8080
+const PORT = 8080;
 const app = express();
 app.set("view engine", "ejs")
-
 
 // Middleware
 
@@ -153,44 +148,28 @@ app.get("/login", (req, res) => {
   };
   res.render("login", templateVars);
 });
+const checkemailexist = function (email, userdatabase) {
+  for (let userId in userdatabase) {
+    if(email === userdatabase[userId].email) {
+      return userdatabase[userId]
+    }
+  }
+return false;
 
+}
 // login
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
-    console.log(users);
-    for (let userId in users) {
-      console.log("loginkey", userId);
-      let user = users[userId];
-      console.log("useruser", user);
-      if (email === user.email && password === user.password) {
-        res.cookie("user_id", user.id);
-        return res.redirect("/urls");
-      }
-      if (email === user.email && password !== user.password) {
-        return res.status(403).send("Enter correct password");
-      }
+  const user = checkemailexist(email, users)
+  if(!user) {
+    return res.status(403).send("Email is not exist");
     }
-    return res.status(403).send("E-mail cannot be found");
- });
-
-
-/* login (11th class) 
-app.get('/login', (req, res) => {
-  res.render('login');
-});
-
-app.post('/login', (req, res) => {
-  console.log('req.body', req.body);
-  // // bcrypt.compare(req.body.password, users[req.body.username].password)
-  .then((result) => {
-    console.log('do the passwords match?', result);
-    if (result) {
-      req.session.username = users[req.body.username]
+  if (!bcrypt.compareSync(req.body.password,user.password)) {
+    return res.status(403).send("password is not correct");
     }
-  })
+    res.cookie('user_id', user.id)
+    res.redirect("/urls");
 });
-*/
-
 
 // logout
 app.post("/logout", (req, res) => {
@@ -204,17 +183,6 @@ app.get("/logout", (req, res) => {
   res.clearCookie("user_id");
   res.redirect("/login");
 });
-
-// // // logout Nally (11th class)
-// app.get('/logout', (req, res) => {
-//   // clear the cookie
-//   // res.clearCookie('')
-//   // delete the session variable
-//   delete req.session.username;
-//   res.redirect('home');
-// });
-
-
 
 app.post("/urls/:id", (req, res) => {
   const { id } = req.params
@@ -232,10 +200,6 @@ app.post("/urls/:id", (req, res) => {
   }
   urlDatabase[id].longURL = longURL
   res.redirect("/urls");
-  // console.log(req.body); // Log the POST request body to the console
-  // const id = generateRandomString();
-  // urlDatabase [id] = req.body.longURL
-  // res.redirect(`/u/${id}`)
 });
 
 // Registeration 
@@ -260,11 +224,11 @@ function getUserByEmail(email) {
 // registreration 
 app.post("/register", (req, res) => {
   const id = generateRandomString();
-  const email = req.body.email;
-  const password = req.body.password;
-  if(email === '' || password === '') {
+  if(req.body.email === '' || req.body.password === '') {
     return res.status(400).send("Put your email and password");
   }
+  const email = req.body.email;
+  const password = bcrypt.hashSync(req.body.password, 10);
   if(getUserByEmail(email)) {
     return res.status(400).send("Your email exist");
   }
@@ -275,7 +239,6 @@ app.post("/register", (req, res) => {
     password,
   };
   res.cookie("user_id", id);
-  console.log(res.cookie['user_id']);
   res.redirect("/urls");
 
 }); 
@@ -301,21 +264,6 @@ app.post("/register", (req, res) => {
 // });
 
 
-/* profie Nally (11th class)
-// app.get('profile', (req, res) => {
-//   if(req.session.username) {
-//     res.render('profile', {username: req.session.username});
-//   } else {
-//     res.redirect('/login');
-//   }
-// });
-*/
-
-//
-// Delete
-//
-
-// (11th Class)
 app.get('/urls/delete/:id', (req,res) => {
   console.log('delete route key:', req.params.id);
   delete objectives[req.params.id];
