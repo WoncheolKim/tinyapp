@@ -1,6 +1,6 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
-const cookieParser = require("cookie-parser");
+const cookieSession = require("cookie-session");
 
 const PORT = 8080;
 const app = express();
@@ -9,7 +9,11 @@ app.set("view engine", "ejs")
 // Middleware
 
 // app.use(morgan('dev')); (11th class)
-app.use(cookieParser());
+app.use(cookieSession({
+    name: "session",
+    keys: ["light", "house"],
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}));
 app.use(express.urlencoded({ extended: true }));
 
 
@@ -73,18 +77,18 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const user = users[req.cookies.user_id];
-  const userID = req.cookies.user_id;
+  const user = users[req.session.user_id];
+  const userID = req.session.user_id;
   const urlForUsers = urlsForUser(userID);
   const templateVars = {user, urls: urlForUsers};
-  if (!users[req.cookies.user_id]) {
+  if (!users[req.session.user_id]) {
     return res.send("Please login first");
   }
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  const user = users[req.cookies.user_id];
+  const user = users[req.session.user_id];
   if (!user) {
     return res.redirect("/login");
   }
@@ -96,11 +100,11 @@ app.get("/urls/new", (req, res) => {
 
 //redirect url details and save
 app.get("/urls/:id", (req, res) => {
-  const user = users[req.cookies.user_id];
+  const user = users[req.session.user_id];
   if (!user) {
     return res.send("Please register first");
   }
-  const urlForUsers = urlsForUser(req.cookies.user_id);
+  const urlForUsers = urlsForUser(req.session.user_id);
   if (!urlForUsers[req.params.id]) {
     return res.send("Not authorized");
   }
@@ -124,7 +128,7 @@ app.get('/u/:id', (req, res) => {
 
 app.post("/urls", (req, res) => {
   console.log(req.body); // Log the POST request body to the console
-  if (!users[req.cookies.user_id]) {
+  if (!users[req.session.user_id]) {
     return res.send("Please register first");
   }
   const id = generateRandomString();
@@ -139,12 +143,12 @@ app.post("/urls/:id/update", (req, res) => {
 
 // login Route
 app.get("/login", (req, res) => {
-  if (users[req.cookies.user_id]) {
+  if (users[req.session.user_id]) {
     res.redirect("/urls");
     return;
   }
   const templateVars = {
-    user: users[req.cookies.user_id]
+    user: users[req.session.user_id]
   };
   res.render("login", templateVars);
 });
@@ -167,20 +171,22 @@ app.post("/login", (req, res) => {
   if (!bcrypt.compareSync(req.body.password,user.password)) {
     return res.status(403).send("password is not correct");
     }
-    res.cookie('user_id', user.id)
+    req.session.user_id = user.id;
     res.redirect("/urls");
 });
 
 // logout
 app.post("/logout", (req, res) => {
   const user_id = req.body.user_id;
-  res.clearCookie("user_id");
+  // res.clearCookie("user_id");
+  req.session = null;
   res.redirect("/urls");
 });
 
 // Logout Route 
 app.get("/logout", (req, res) => {
-  res.clearCookie("user_id");
+  // res.clearCookie("user_id");
+  req.session = null;
   res.redirect("/login");
 });
 
@@ -190,11 +196,11 @@ app.post("/urls/:id", (req, res) => {
   if (!id) {
     return res.send("your ID doesn't exist");
   }
-  if (!users[req.cookies.user_id]) {
+  if (!users[req.session.user_id]) {
     res.send("You need to login");
     return;
   }
-  const urlForUsers = urlsForUser(req.cookies.user_id);
+  const urlForUsers = urlsForUser(req.session.user_id);
   if (!urlForUsers[req.params.id]) {
     return res.send("It is not yours");
   }
@@ -204,11 +210,11 @@ app.post("/urls/:id", (req, res) => {
 
 // Registeration 
 app.get("/register", (req, res) => {
-  if (users[req.cookies.user_id]) {
+  if (users[req.session.user_id]) {
     res.redirect("/urls");
     return;
   }
-  const templateVars = { user: users[req.cookies.user_id] };
+  const templateVars = { user: users[req.session.user_id] };
   res.render("registration", templateVars);
 });
 
@@ -238,7 +244,7 @@ app.post("/register", (req, res) => {
     email,
     password,
   };
-  res.cookie("user_id", id);
+  req.session.user_id = id;
   res.redirect("/urls");
 
 }); 
@@ -275,10 +281,10 @@ app.post("/urls/:id/delete", (req, res) => {
   if (!id) {
     return res.send("your ID doesn't exist");
   }
-  if (!users[req.cookies.user_id]) {
+  if (!users[req.session.user_id]) {
     return res.send("You need to login");
   }
-  const urlForUsers = urlsForUser(req.cookies.user_id);
+  const urlForUsers = urlsForUser(req.session.user_id);
   if (!urlForUsers[req.params.id]) {
     return res.send("It is not yours");
   }
