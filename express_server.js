@@ -42,6 +42,11 @@ const users = {
     email: "user2@example.com",
     password: "dishwasher-funk",
   },
+  user3RandomID: {
+    id: "user3RandomID",
+    email: "11@1.com",
+    password: "11",
+  },
 };
 
 const urlDatabase = {
@@ -200,6 +205,10 @@ app.post("/urls/:id", (req, res) => {
 
 // Registeration 
 app.get("/register", (req, res) => {
+  if (users[req.cookies.user_id]) {
+    res.redirect("/urls");
+    return;
+  }
   const templateVars = { user: users[req.cookies.user_id] };
   res.render("registration", templateVars);
 });
