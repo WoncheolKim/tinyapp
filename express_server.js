@@ -2,7 +2,6 @@
 const express = require("express");
 // const morgan = require('morgan'); (11th class)
 
-// const cookieParser = require('cookie-parser');
 const cookieParser = require("cookie-parser");
 
 // const bcrype = require('bcrypt'); (11th class)
@@ -23,12 +22,11 @@ function generateRandomString() {
   var characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
   var result = ""
   var charactersLength = characters.length;
-  
   for ( var i = 0; i < 5 ; i++ ) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
   }
   return result;
-  }
+}
 
   // User_id Data
 const users = {
@@ -52,13 +50,23 @@ const users = {
 const urlDatabase = {
   b6UTxQ: {
     longURL: "https://www.tsn.ca",
-    userID: "aJ48lW",
+    userID: "user3RandomID",
   },
   i3BoGr: {
     longURL: "https://www.google.ca",
-    userID: "aJ48lW",
+    userID: "user3RandomID",
   },
 };
+
+function urlsForUser(newID) {
+  const urlForUser = {};
+  for (let url in urlDatabase) {
+    if (urlDatabase[url].userID === newID) {
+      urlForUser[url] = urlDatabase[url];
+    }
+  }
+  return urlForUser;
+}
 
 app.get("/", (req, res) => {
   res.send("Hello! This is James!!");
@@ -71,7 +79,12 @@ app.get("/urls.json", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const user = users[req.cookies.user_id];
-  const templateVars = {user, urls: urlDatabase};
+  const userID = req.cookies.user_id;
+  const urlForUsers = urlsForUser(userID);
+  const templateVars = {user, urls: urlForUsers};
+  if (!users[req.cookies.user_id]) {
+    return res.send("Please login first");
+  }
   res.render("urls_index", templateVars);
 });
 
@@ -86,10 +99,16 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
-
 //redirect url details and save
 app.get("/urls/:id", (req, res) => {
   const user = users[req.cookies.user_id];
+  if (!user) {
+    return res.send("Please register first");
+  }
+  const urlForUsers = urlsForUser(req.cookies.user_id);
+  if (!urlForUsers[req.params.id]) {
+    return res.send("Not authorized");
+  }
   const templateVars = {
     user,
     id: req.params.id,
@@ -123,7 +142,6 @@ app.post("/urls/:id/update", (req, res) => {
   res.redirect("/urls");
 });
 
-
 // login Route
 app.get("/login", (req, res) => {
   if (users[req.cookies.user_id]) {
@@ -153,7 +171,6 @@ app.post("/login", (req, res) => {
       }
     }
     return res.status(403).send("E-mail cannot be found");
-    
  });
 
 
@@ -202,6 +219,17 @@ app.get("/logout", (req, res) => {
 app.post("/urls/:id", (req, res) => {
   const { id } = req.params
   const { longURL } = req.body
+  if (!id) {
+    return res.send("your ID doesn't exist");
+  }
+  if (!users[req.cookies.user_id]) {
+    res.send("You need to login");
+    return;
+  }
+  const urlForUsers = urlsForUser(req.cookies.user_id);
+  if (!urlForUsers[req.params.id]) {
+    return res.send("It is not yours");
+  }
   urlDatabase[id].longURL = longURL
   res.redirect("/urls");
   // console.log(req.body); // Log the POST request body to the console
@@ -209,11 +237,6 @@ app.post("/urls/:id", (req, res) => {
   // urlDatabase [id] = req.body.longURL
   // res.redirect(`/u/${id}`)
 });
-
-
-
-
-
 
 // Registeration 
 app.get("/register", (req, res) => {
@@ -258,7 +281,6 @@ app.post("/register", (req, res) => {
 }); 
 
 
-
 // Profile Page (11th class)
 // app.get('/profile',(req,res) => {
 
@@ -300,13 +322,22 @@ app.get('/urls/delete/:id', (req,res) => {
   res.redirect('/urls');
 });
 
-// app.post("/urls/:id/delete", (req, res) => {
-//   delete urlDatabase[req.params.id];
-//   res.redirect(`/urls`);
-// });
-
+app.post("/urls/:id/delete", (req, res) => {
+  const { id } = req.params
+  if (!id) {
+    return res.send("your ID doesn't exist");
+  }
+  if (!users[req.cookies.user_id]) {
+    return res.send("You need to login");
+  }
+  const urlForUsers = urlsForUser(req.cookies.user_id);
+  if (!urlForUsers[req.params.id]) {
+    return res.send("It is not yours");
+  }
+  delete urlDatabase[req.params.id];
+  res.redirect(`/urls`);
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
-
