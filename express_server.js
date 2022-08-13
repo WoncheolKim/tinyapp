@@ -79,10 +79,7 @@ app.get("/urls", (req, res) => {
   const userID = req.session.user_id;
   const urlForUsers = urlsForUser(userID);
   const templateVars = {user, urls: urlForUsers};
-  if (!users[req.session.user_id]) {
-    return res.send("Not logged in. Please <a href='/login'>login</a>");
-  }
-  res.render("urls_index", templateVars);
+  res.render("login", templateVars);
 });
 
 //
