@@ -91,7 +91,7 @@ app.get("/urls", (req, res) => {
 app.post("/urls", (req, res) => {
   console.log(req.body); // Log the POST request body to the console
   if (!users[req.session.user_id]) {
-    return res.send("Not registered please <a href='/register'>register</a>");
+    return res.send("Please register first");
   }
   const id = generateRandomString();
   urlDatabase[id] = { longURL : req.body.longURL }
@@ -104,7 +104,7 @@ app.post("/urls", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   const user = users[req.session.user_id];
   if (!user) {
-    return res.send("Not registered please <a href='/register'>register</a>");
+    return res.send("Please register first");
   }
   const urlForUsers = urlsForUser(req.session.user_id);
   if (!urlForUsers[req.params.id]) {
