@@ -1,7 +1,6 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const cookieSession = require("cookie-session");
-
 const PORT = 8080;
 const app = express();
 app.set("view engine", "ejs")
@@ -16,16 +15,13 @@ app.use(cookieSession({
 }));
 app.use(express.urlencoded({ extended: true }));
 
+const {
+  getUserByEmail,
+  generateRandomString,
+  urlsForUser,
+  urlDatabase,
+} = require("./helpers");
 
-function generateRandomString() {
-  var characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
-  var result = ""
-  var charactersLength = characters.length;
-  for ( var i = 0; i < 5 ; i++ ) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-  }
-  return result;
-}
 
   // User_id Data
 const users = {
@@ -46,26 +42,8 @@ const users = {
   },
 };
 
-const urlDatabase = {
-  b6UTxQ: {
-    longURL: "https://www.tsn.ca",
-    userID: "user3RandomID",
-  },
-  i3BoGr: {
-    longURL: "https://www.google.ca",
-    userID: "user3RandomID",
-  },
-};
 
-function urlsForUser(newID) {
-  const urlForUser = {};
-  for (let url in urlDatabase) {
-    if (urlDatabase[url].userID === newID) {
-      urlForUser[url] = urlDatabase[url];
-    }
-  }
-  return urlForUser;
-}
+
 
 app.get("/", (req, res) => {
   res.send("Hello! This is James!!");
@@ -82,7 +60,7 @@ app.get("/urls", (req, res) => {
   const urlForUsers = urlsForUser(userID);
   const templateVars = {user, urls: urlForUsers};
   if (!users[req.session.user_id]) {
-    return res.send("Please login first");
+    return res.send("Not logged in. Please <a href='/login'>login</a>");
   }
   res.render("urls_index", templateVars);
 });
@@ -218,14 +196,7 @@ app.get("/register", (req, res) => {
   res.render("registration", templateVars);
 });
 
-function getUserByEmail(email) {
-  for (let userId in users) {
-    if (email === users[userId].email) {
-      return users[userId];
-    }
-  }
-  return null;
-}
+
 
 // registreration 
 app.post("/register", (req, res) => {
