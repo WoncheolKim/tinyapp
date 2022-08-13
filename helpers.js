@@ -1,3 +1,4 @@
+/// URLDATABASE
 const urlDatabase = {
   b6UTxQ: {
     longURL: "https://www.tsn.ca",
@@ -9,7 +10,7 @@ const urlDatabase = {
   },
 };
 
-
+//GENERATE RANDOM STRING
 function generateRandomString() {
   var characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
   var result = ""
@@ -20,7 +21,7 @@ function generateRandomString() {
   return result;
 };
 
-
+//URLS FOR USER
 function urlsForUser(newID) {
   const urlForUser = {};
   for (let url in urlDatabase) {
@@ -31,7 +32,7 @@ function urlsForUser(newID) {
   return urlForUser;
 }
 
-
+// GET USER BY EMAIL
 function getUserByEmail(email, users) {
   for (let userId in users) {
     if (email === users[userId].email) {
@@ -40,7 +41,6 @@ function getUserByEmail(email, users) {
   }
   return null;
 };
-
 
 module.exports = {
   getUserByEmail,
