@@ -22,15 +22,13 @@
     <% if(user) { %>
       Logged in as: <%= user.email %>
       <form method="post" action="/logout">
-        <button type="submit" class="btn btn-light">logout</button>
-    </form>
-    <% } else { %>
-      <div class="navbar-nav">
+        <button type="submit" class="btn btn-light">Logout</button>
+      </form>
+      <% } else { %>
+      <form method="post" action="/logout">
         <h5><a class="nav-item nav-link" href="/login">Login</a></h5>
-        <h5><a class="nav-item nav-link" href="/register">register</a></h5>
-      </div>
+        <h5><a class="nav-item nav-link" href="/register">Register</a></h5>
+      </form>
     <% } %>
- 
- 
-  </nav>
+   </nav>
 </header>

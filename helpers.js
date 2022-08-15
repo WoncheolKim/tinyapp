@@ -1,45 +1,43 @@
-/// URLDATABASE
+const generateRandomString = function() {
+  let randomString = "";
+  for (let i = 0; i < 6; i++) {
+    const randomCharCode = Math.floor(Math.random() * 26 + 97);
+    const randomChar = String.fromCharCode(randomCharCode);
+    randomString += randomChar;
+  }
+  return randomString;
+};
+
 const urlDatabase = {
   b6UTxQ: {
     longURL: "https://www.tsn.ca",
-    userID: "user3RandomID",
+    userID: "aJ48lW",
   },
   i3BoGr: {
     longURL: "https://www.google.ca",
-    userID: "user3RandomID",
+    userID: "aJ48lW",
   },
 };
 
-//GENERATE RANDOM STRING
-function generateRandomString() {
-  var characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
-  var result = ""
-  var charactersLength = characters.length;
-  for ( var i = 0; i < 5 ; i++ ) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-  }
-  return result;
-};
-
-//URLS FOR USER
-function urlsForUser(newID) {
-  const urlForUser = {};
-  for (let url in urlDatabase) {
-    if (urlDatabase[url].userID === newID) {
-      urlForUser[url] = urlDatabase[url];
-    }
-  }
-  return urlForUser;
-}
-
-// GET USER BY EMAIL
-function getUserByEmail(email, users) {
-  for (let userId in users) {
-    if (email === users[userId].email) {
-      return users[userId];
+const getUserByEmail = (email, users) => {
+  for (const userId in users) {
+    if (users[userId].email === email) {
+      return users[userId]["id"];
     }
   }
   return null;
+};
+
+const urlsForUser = function(id) {
+  const userurl = {};
+  console.log("aaaaaaa", userurl, id, urlDatabase)
+  for (const url in urlDatabase) {
+    if (urlDatabase[url].userID === id) {
+      userurl[url] = urlDatabase[url].longURL;
+    };
+  }
+  console.log("bbbbbb", userurl)
+  return userurl;
 };
 
 module.exports = {

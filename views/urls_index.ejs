@@ -30,12 +30,12 @@
           </tr>
         </thead>
         <tbody>
-          <% for (let id in urls) { %>
+          <% for (let url in urlDatabase) { %>
             <tr>
-              <td><a href="/urls/<%= id %>"><%= id %></a></td>
-              <td><a href="<%= urls[id].longURL %>"><%= urls[id].longURL %></a></td>
-              <td><form method="POST" action="/urls/<%= id %>/delete"><button type="summit" name="Delete">Delete</button></form></td>
-              <td><form method="GET" action="/urls/<%= id %>"><button type="summit" name="Edit">Edit</button></form></td>
+              <td><a href="/urls/<%= user.id %>"><%= user.id %></a></td>
+              <td><a href="<%= urlDatabase[url].longURL %>"><%= urlDatabase[url] %></a></td>
+              <td><form method="GET" action="/urls/<%= url %>"><button type="summit" name="Edit">Edit</button></form></td>
+              <td><form method="POST" action="/urls/<%= url %>/delete"><button type="summit" name="Delete">Delete</button></form></td>
             </tr>
           <% } %>
         </tbody>
