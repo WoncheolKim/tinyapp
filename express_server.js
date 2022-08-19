@@ -40,8 +40,9 @@ app.get("/", (req, res) => {
 
 app.get('/urls', (req, res) => {
   const user_id = req.session.user_id;
-  console.log("asedasdf", user_id, urlsForUser(user_id))
-  console.log("users[user_id", users[user_id])
+  if (!user_id) {
+    return res.status(400).send("You didn't login");;
+  }
   let templateVars = {
     urlDatabase: urlsForUser(user_id),
     user: users[user_id],
@@ -70,11 +71,15 @@ app.get("/u/:id", (req, res) => {
     res.redirect(url);
   } else {
     res.statusCode = 404;
-    return res.status(400).send("It does not exist");;
+    return res.status(400).send("It does not exist");
   }
 });
 
 app.get("/urls/:id", (req, res) => {
+  const longURL = urlDatabase[req.params.id];
+  if(!longURL) {
+    return res.status(400).send("It does not exist.. change later");
+  }
   const user = users[req.session.user_id];
   const templateVars = {
     user,
@@ -113,6 +118,10 @@ app.get('/register', (req, res) => {
 //app.post////////////////////////////////
 
 app.post("/urls", (req, res) => {
+  const user_id = req.session.user_id;
+  if (!user_id) {
+    return res.status(400).send("You didn't login");;
+  }
   let id = generateRandomString();
   urlDatabase[id] = { longURL: req.body.longURL, userID: req.session.user_id };
   res.redirect(`/urls/${id}`);
