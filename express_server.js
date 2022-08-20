@@ -32,7 +32,7 @@ app.get("/", (req, res) => {
   }
   const user = users[req.session.user_id];
   const templateVars = {
-    urls: urlsForUser(req.session.user_id),
+    urlDatabase: urlsForUser(req.session.user_id),
     user,
   };
   res.render("urls_index", templateVars);
@@ -78,7 +78,7 @@ app.get("/u/:id", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
   if(!longURL) {
-    return res.status(400).send("It does not exist.. change later");
+    return res.status(400).send("It does not exist");
   }
   const user = users[req.session.user_id];
   const templateVars = {
@@ -139,7 +139,6 @@ app.post("/login", (req, res) => {
   const { email, password } = req.body;
     for (let userId in users) {
       let user = users[userId];
-      console.log("passwordaaaaaa", password, users, userId)
       if (email === user.email && bcrypt.compareSync(password, users[userId].password)
        ) {
         req.session.user_id = user.id;
@@ -154,6 +153,9 @@ app.post('/register', (req, res) => {
   const currentEmailExist = getUserByEmail(email, users);
   if (currentEmailExist) {
     return res.status(400).send(`Email already exists`);
+  } 
+  if (email === "" || password === "") {
+    return res.status(400).send("Error: Please enter email & password ");
   }
   if (email && password) {
     for (let key in users) {

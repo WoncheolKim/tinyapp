@@ -30,13 +30,11 @@ const getUserByEmail = (email, users) => {
 
 const urlsForUser = function(id) {
   const userurl = {};
-  console.log("aaaaaaa", userurl, id, urlDatabase)
   for (const url in urlDatabase) {
     if (urlDatabase[url].userID === id) {
       userurl[url] = urlDatabase[url].longURL;
     };
   }
-  console.log("bbbbbb", userurl)
   return userurl;
 };
 
