@@ -22,7 +22,7 @@ app.use(
 
 const users = {};
 
-//app.get////////////////////////////////
+// Root Path
 
 app.get("/", (req, res) => {
   if (!req.session.user_id) {
@@ -45,10 +45,11 @@ app.get('/urls', (req, res) => {
     urlDatabase: urlsForUser(user_id),
     user: users[user_id],
   };
+  console.log(templateVars);
   res.render('urls_index', templateVars);
 });
 
-
+// URLS Create
 app.get("/urls/new", (req, res) => {
   if (!req.session["user_id"]) {
     return res.redirect("/login");
@@ -76,19 +77,22 @@ app.get("/u/:id", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
   if(!longURL) {
-    return res.status(400).send("It does not exist");
+    return res.status(404).send("It does not exist");
   }
   const user = users[req.session.user_id];
+  if(!req.session.user_id === longURL.userID) {
+    return res.status(404).send("It does not exist");
+  }
   const templateVars = {
     user,
     id: req.params.id,
-    longURL: urlDatabase[req.params.id].longURL,
+    longURL: longURL.longURL,
     urls: urlDatabase,
   };
   res.render("urls_show", templateVars);
 });
 
-
+// Users Login
 app.get('/login', (req, res) => {
   const templateVars = {
     user: users[req.session.user_id],
@@ -100,6 +104,7 @@ app.get('/login', (req, res) => {
   }
 });
 
+// Users Create
 app.get('/register', (req, res) => {
   const templateVars = {
     user: users[req.session.user_id],
@@ -111,7 +116,6 @@ app.get('/register', (req, res) => {
   }
 });
 
-//app.post////////////////////////////////
 
 app.post("/urls", (req, res) => {
   const user_id = req.session.user_id;
@@ -123,13 +127,15 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${id}`);
 });
 
-app.post("/urls/:id/update", (req, res) => {
+app.post("/urls/:id", (req, res) => {
+console.log('aaaaaaa', req.body)
   urlDatabase[req.params.id] = {
     longURL: req.body.newLongURL,
     userID: req.session.user_id,
   };
   res.redirect("/urls");
 });
+
 
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
@@ -194,6 +200,7 @@ app.post("/urls/:id/delete", (req, res) => {
   res.redirect(`/urls`);
 });
 
+// SERVER - Listening
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
