@@ -45,7 +45,6 @@ app.get('/urls', (req, res) => {
     urlDatabase: urlsForUser(user_id),
     user: users[user_id],
   };
-  console.log(templateVars);
   res.render('urls_index', templateVars);
 });
 
@@ -128,7 +127,6 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/urls/:id", (req, res) => {
-console.log('aaaaaaa', req.body)
   urlDatabase[req.params.id] = {
     longURL: req.body.newLongURL,
     userID: req.session.user_id,
@@ -156,7 +154,7 @@ app.post('/register', (req, res) => {
   if (currentEmailExist) {
     return res.status(400).send(`Email already exists`);
   } 
-  if (email === "" || password === "") {
+  if (!email || !password) {
     return res.status(400).send("Error: Please enter email & password ");
   }
   if (email && password) {
@@ -202,5 +200,4 @@ app.post("/urls/:id/delete", (req, res) => {
 
 // SERVER - Listening
 app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
 });
