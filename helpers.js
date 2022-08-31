@@ -1,4 +1,4 @@
-const generateRandomString = function() {
+const generateRandomString = () => {
   let randomString = "";
   for (let i = 0; i < 6; i++) {
     const randomCharCode = Math.floor(Math.random() * 26 + 97);
@@ -28,7 +28,7 @@ const getUserByEmail = (email, users) => {
   return null;
 };
 
-const urlsForUser = function(id) {
+const urlsForUser = (id) => {
   const userurl = {};
   for (const url in urlDatabase) {
     if (urlDatabase[url].userID === id) {
