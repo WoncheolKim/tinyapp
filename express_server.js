@@ -33,7 +33,7 @@ app.get("/", (req, res) => {
     urlDatabase: urlsForUser(req.session.user_id),
     user,
   };
-  res.render("urls_index", templateVars);
+  res.render("urls", templateVars);
 });
 
 app.get('/urls', (req, res) => {
@@ -63,9 +63,9 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
-  const url = longURL["longURL"];
 
   if (longURL) {
+    const url = longURL["longURL"];
     res.redirect(url);
   } else {
     res.statusCode = 404;
@@ -122,31 +122,57 @@ app.post("/urls", (req, res) => {
     return res.status(400).send("You didn't login");;
   }
   let id = generateRandomString();
-  urlDatabase[id] = { longURL: req.body.longURL, userID: req.session.user_id };
+  urlDatabase[id] = { 
+    longURL: req.body.longURL, 
+    userID: user_id 
+  };
   res.redirect(`/urls/${id}`);
 });
 
 app.post("/urls/:id", (req, res) => {
-  urlDatabase[req.params.id] = {
-    longURL: req.body.newLongURL,
-    userID: req.session.user_id,
-  };
-  res.redirect("/urls");
+  const user_id = req.session.user_id;
+  if (!user_id) {
+    return res.status(400).send("You didn't login");
+  }
+  let url = urlDatabase[req.params.id];
+  if (url && url.userID === user_id) {
+    url = {
+      longURL: req.body.newLongURL,
+      userID: user_id,
+    };
+    urlDatabase[req.params.id] = url;
+    return res.redirect("/urls");
+  } else {
+    return res.status(403).send("This URL belongs to a different user");
+  }
+});
+
+app.post("/urls/:id/delete", (req, res) => {
+  const user_id = req.session.user_id;
+  if (!user_id) {
+    return res.status(400).send("You didn't login");
+  }
+  if (user_id === urlDatabase[req.params.id].userID) {
+    delete urlDatabase[req.params.id];
+    return res.redirect(`/urls`);
+  } 
+  return res.status(403).send("This URL belongs to a different user");
+
 });
 
 
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
-    for (let userId in users) {
-      let user = users[userId];
-      if (email === user.email && bcrypt.compareSync(password, users[userId].password)
-       ) {
-        req.session.user_id = user.id;
-        return res.redirect("/urls");
-      }
-    }
-    return res.status(403).send("E-mail cannot be found");
- });
+  const userId = getUserByEmail(email, users);
+  if (userId) {
+    if (bcrypt.compareSync(password, users[userId].password)) {
+      req.session.user_id = userId;
+      return res.redirect("/urls");
+    }  
+    return res.status(401).send("Error : Please re-enter your Email or Password");
+  }
+  return res.status(401).send("Error : User doesn't exist");
+});
 
 app.post('/register', (req, res) => {
   const { email, password } = req.body;
@@ -154,9 +180,6 @@ app.post('/register', (req, res) => {
   if (currentEmailExist) {
     return res.status(400).send(`Email already exists`);
   } 
-  if (!email || !password) {
-    return res.status(400).send("Error: Please enter email & password ");
-  }
   if (email && password) {
     for (let key in users) {
       if (users[key].email === email) {
@@ -191,11 +214,6 @@ app.post('/register', (req, res) => {
 app.post("/logout", (req, res) => {
   req.session = null;
   res.redirect("/login");
-});
-
-app.post("/urls/:id/delete", (req, res) => {
-  delete urlDatabase[req.params.id];
-  res.redirect(`/urls`);
 });
 
 // SERVER - Listening
